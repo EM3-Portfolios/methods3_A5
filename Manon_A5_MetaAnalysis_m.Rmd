@@ -56,9 +56,11 @@ head(data)
   # does it mean calculate mean effect size of all studies compiled together and the SE to go with that mean? (why not SD?)
   # does it mean using metafor::escalc() to calculate effect sizes (as cohen's d) and their variance? (https://rstudio-pubs-static.s3.amazonaws.com/10913_5858762ec84b458d89b0f4a4e6dd5e81.html)
 
+# See lecture 11-12 code for this:
 library(metafor)
 data <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Cohen's d
                n1i = , n2i = , #for this i think we should make 2 new columns from the ones called MALE_SZ + FEMALE_SZ = n_SZ (and same for HC)
-                )
+               m1i = PITCH_F0_HC_M, m2i = PITCH_F0_SZ_M,
+               sd1i = PITCH_F0_HC_SD, sd2i = PITCH_F0_SZ_SD, data = data)
 ```
 
