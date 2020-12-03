@@ -35,3 +35,30 @@ Prisma chart: https://www.dropbox.com/s/vbjf6ff73dv9tru/PRISMA%202009%20flow%20d
 - Go back to Assignment 3, add your own study to the data table, and re-run meta-analysis. Do the results change?
 
 - Now look at the output of rma() and check tau and I2
+
+```{r Loading data}
+# Load data:
+data <- readxl::read_xlsx("Matrix_MetaAnalysis_Diagnosis_updated290719.xlsx")
+head(data)
+
+# Find which columns to use:
+
+# Does the hint mean that we use columns "PITCH_F0_HC_M", "PITCH_F0_HC_SD", "PITCH_F0_SZ_M", and "PITCH_F0_SZ_SD"?
+  # that would make sense sine HC like stands for healthy control and SZ for schizophrenic.
+  # and our pitch in assignment 3 was called F0
+  # Does that mean we don't care about all the other F's? (e.g. PITCH_F4_HC_M) - and what about 'PITCH_FORAN_SZ_SD'?
+# Additional information is in column 'pitch_f0_variability' where it says maybe how pitch (variability) was measured?
+  # the column 'frequency' notes in what measure the frequencies are (e.g. hz or semitones)
+```
+
+```{r Procedure from slides}
+# What does "calculate effect size and standard error of the effect size per each study" mean?
+  # does it mean calculate mean effect size of all studies compiled together and the SE to go with that mean? (why not SD?)
+  # does it mean using metafor::escalc() to calculate effect sizes (as cohen's d) and their variance? (https://rstudio-pubs-static.s3.amazonaws.com/10913_5858762ec84b458d89b0f4a4e6dd5e81.html)
+
+library(metafor)
+data <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Cohen's d
+               n1i = , n2i = , #for this i think we should make 2 new columns from the ones called MALE_SZ + FEMALE_SZ = n_SZ (and same for HC)
+                )
+```
+
