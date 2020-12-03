@@ -74,11 +74,32 @@ View(data$vi)
 m <- lme4::lmer(yi ~ 1 + (1 | StudyID), weights = 1/vi, data=data, control=lme4::lmerControl(check.nobs.vs.nlev="ignore", check.nobs.vs.nRE="ignore"))
 
 # using rma
-m2 <-rma (yi, vi, data = data, slab = StudyID)
-forest(m2)
+m1 <-rma (yi, vi, data = data, slab = StudyID)
+forest(m1)
 ```
 
 ```{r Adding our PF3 to the data set}
 df_withus <- readxl::read_xlsx("MetaAnalysis_withourassignment3.xlsx")
+
+df_withus <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Cohen's d
+               n1i = SAMPLE_SIZE_HC, n2i = SAMPLE_SIZE_SZ,
+               m1i = PITCH_F0_HC_M, m2i = PITCH_F0_SZ_M,
+               sd1i = PITCH_F0_HC_SD, sd2i = PITCH_F0_SZ_SD, data = df_withus)
+
+m2 <-rma (yi, vi, data = df_withus, slab = StudyID)
+forest(m2)
+forest(m1)
+```
+
+```{r Now look at the output of rma() and check tau and I2}
+
+```
+
+```{r Funnel plot/publication bias}
+
+```
+
+```{r Influential studies}
+
 ```
 
