@@ -43,6 +43,10 @@ df_full <- read_excel("MetaAnalysis_Data.xlsx")
 
 # Look through the data set to find out which columns to use, and if there is any additional information written as comments (real world data is always messy!). * Hint: PITCH_F0M and PITCH_F0SD group of variables are what you need
 
+# Calculating the percentage of studies that reported quantitative measures out of the 159 full-text articles assessed for eligibility.
+(48/159)*100    # = 30.2%
+
+
 df <- df_full %>% 
   summarise(ArticleID = ArticleID, 
             StudyID = StudyID, 
@@ -54,11 +58,12 @@ df <- df_full %>%
             Pitch_hc_mean = PITCH_F0_HC_M, 
             Pitch_hc_sd = PITCH_F0_HC_SD, 
             Pitch_sz_mean = PITCH_F0_SZ_M, 
-            Pitch_sz_sd = PITCH_F0_SZ_SD)
+            Pitch_sz_sd = PITCH_F0_SZ_SD,
+            Pitch_var_hc_mean = PITCH_F0SD_HC_M, 
+            Pitch_var_hc_sd = PITCH_F0SD_HC_SD, 
+            Pitch_var_sz_mean = PITCH_F0SD_SZ_M, 
+            Pitch_var_sz_sd = PITCH_F0SD_SZ_SD,)
 
-## Why are there two ArticleIDs numbered 3, and why do they report different measures?
-## Do we need the "PITCH_F0_HC_M"s or the "PITCH_F0SD_HC_M"s? What is the difference? Also there are no columns called something with "PITCH_F0M"...
-df_full$PITCH_F0
 
 # Counting the number of studies with quantitative measures of pitch mean and sd in the meta analysis. NB: This code does not tell us if the observations are in the same rows, but we can just eyeball that.
 colSums(!is.na(df[8:11]))
@@ -94,18 +99,17 @@ m4 <- rma(yi, vi, mods = cbind(as.factor(Task)), data = WM_d, slab = StudyID)
 ## Is "Task" equal to Byurakn's "test" that she used in the lecture?
 
 summary(m4)
- 
+
 forest(m4)
 
 # Reporting on this:
 
-# x studies were included, which involved x patients with schizophrenia and x healthy controls. The overall estimated difference (Cohen’s d) between the patients and the control groups was 0.15, SE = 0.21, z = 0.72, p = 0.47 (non-significant).
+# x studies were included, which involved x patients with schizophrenia and x healthy controls. The overall estimated difference (Cohen’s d) between the patients and the control groups was -0.16, SE = 0.16, z = -1.05, p = 0.29 (non-significant).
 
 
-## Why does she choose the estimates from m2 and not m4?
-## Why does she only get one row of model estimates? I get two. Did she set her intercept differently?
-## Can you still copy the above text when the estimated difference was nt significant?
-## How do I know how many studies were included? was it 6 or 8?
+## Why does she choose the estimates from m2 and not m4? We don't need fixed effects here
+## Can you still copy the above text when the estimated difference was n0t significant? Yes
+## How do I know how many studies were included? was it 6 or 8? Only 6
 ```
 
 
