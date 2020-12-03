@@ -94,7 +94,7 @@ m4 <- rma(yi, vi, mods = cbind(as.factor(Task)), data = WM_d, slab = StudyID)
 ## Is "Task" equal to Byurakn's "test" that she used in the lecture?
 
 summary(m4)
-
+ 
 forest(m4)
 
 # Reporting on this:
