@@ -1,0 +1,114 @@
+---
+title: "Assignment 5 - Meta-analysis of pitch in schizophrenia"
+author: "Riccardo Fusaroli"
+date: "3/7/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Building on the shoulders of giants: meta-analysis
+
+## Questions to be answered
+
+1. What is the current evidence for distinctive vocal patterns in schizophrenia? Report how many papers report quantitative estimates, comment on what percentage of the overall studies reviewed they represent (see PRISMA chart) your method to analyze them, the estimated effect size of the difference (mean effect size and standard error) and forest plots representing it. N.B. Only measures of pitch mean and pitch sd are required for the assignment (all the other measures have been removed from the dataset for the sake of simplicity). 
+
+2. Do the results match your own analysis from Assignment 3? If you add your results to the meta-analysis, do the estimated effect sizes change? Report the new estimates and the new forest plots.
+
+3. Assess the quality of the literature: report and comment on heterogeneity of the studies (tau, I2), on publication bias (funnel plot), and on influential studies.
+
+## Tips on the process to follow:
+
+- Download the data on all published articles analyzing voice in schizophrenia and the prisma chart as reference of all articles found and reviewed
+Data: https://www.dropbox.com/s/0l9ur0gaabr80a8/Matrix_MetaAnalysis_Diagnosis_updated290719.xlsx?dl=0
+Prisma chart: https://www.dropbox.com/s/vbjf6ff73dv9tru/PRISMA%202009%20flow%20diagram_PP.pptx?dl=0 
+- Look through the dataset to find out which columns to use, and if there is any additional information written as comments (real world data is always messy!).
+    * Hint: PITCH_F0M and PITCH_F0SD group of variables are what you need
+- Following the procedure in the slides calculate effect size and standard error of the effect size per each study. N.B. we focus on pitch mean and pitch standard deviation.
+ . first try using lmer (to connect to what you know of mixed effects models)
+ . then use rma() (to get some juicy additional statistics)
+
+- Build a forest plot of the results (forest(model))
+ 
+- Go back to Assignment 3, add your own study to the data table, and re-run meta-analysis. Do the results change?
+
+- Now look at the output of rma() and check tau and I2
+
+```{r Loading + cleaning data}
+pacman::p_load(readxl, metafor, lme4, lmerTest)
+
+df_full <- read_excel("MetaAnalysis_Data.xlsx")
+
+# Look through the data set to find out which columns to use, and if there is any additional information written as comments (real world data is always messy!). * Hint: PITCH_F0M and PITCH_F0SD group of variables are what you need
+
+df <- df_full %>% 
+  summarise(ArticleID = ArticleID, 
+            StudyID = StudyID, 
+            Title = Title, 
+            Article = Article, 
+            Task = TYPE_OF_TASK,
+            Sample_size_hc = SAMPLE_SIZE_HC,
+            Sample_size_sz = SAMPLE_SIZE_SZ,
+            Pitch_hc_mean = PITCH_F0_HC_M, 
+            Pitch_hc_sd = PITCH_F0_HC_SD, 
+            Pitch_sz_mean = PITCH_F0_SZ_M, 
+            Pitch_sz_sd = PITCH_F0_SZ_SD)
+
+## Why are there two ArticleIDs numbered 3, and why do they report different measures?
+## Do we need the "PITCH_F0_HC_M"s or the "PITCH_F0SD_HC_M"s? What is the difference? Also there are no columns called something with "PITCH_F0M"...
+df_full$PITCH_F0
+
+# Counting the number of studies with quantitative measures of pitch mean and sd in the meta analysis. NB: This code does not tell us if the observations are in the same rows, but we can just eyeball that.
+colSums(!is.na(df[8:11]))
+
+# There is a total of 6 studies in the meta analysis data that has quantitative measures of pitch mean and standard deviation for both schizophrenia patients and healthy controls. Additionally, there are two studies that have the measures for only schizophrenia patients, and one study has only the mean pitch for schizophrenia patients.
+
+
+```
+
+
+```{r}
+# Following the procedure in the slides calculate effect size and standard error of the effect size per each study. N.B. we focus on pitch mean and pitch standard deviation.
+#   . first try using lmer (to connect to what you know of mixed effects models)
+#   . then use rma() (to get some juicy additional statistics)
+
+WM_d = escalc(measure = "SMD", n1i = Sample_size_hc, n2i = Sample_size_sz, m1i = Pitch_hc_mean, m2i = Pitch_sz_mean, sd1i = Pitch_hc_sd, sd2i = Pitch_sz_sd, data = df) #SMD = standardized mean difference. N1i = sample size of the control group. n2i = sample size of the patients group.
+
+View(WM_d) # yi = observed effect size. vi = variance.
+
+# Mixed effects implementation:
+m1 <- lmer(yi ~ 1 + (1 | StudyID), weights = 1/vi, data = WM_d, control=lmerControl(check.nobs.vs.nlev="ignore", check.nobs.vs.nRE="ignore"))
+
+m2 <- rma(yi, vi, data = WM_d, slab = StudyID)
+
+summary(m2)
+
+forest(m2)
+
+# What if we have a fixed effect?
+m3 <- lmer(yi ~ 1 + Task + (1 | StudyID), weights = 1/vi, data = WM_d, control=lmerControl(check.nobs.vs.nlev="ignore", check.nobs.vs.nRE="ignore"))
+
+m4 <- rma(yi, vi, mods = cbind(as.factor(Task)), data = WM_d, slab = StudyID)
+## Is "Task" equal to Byurakn's "test" that she used in the lecture?
+
+summary(m4)
+
+forest(m4)
+
+# Reporting on this:
+
+# x studies were included, which involved x patients with schizophrenia and x healthy controls. The overall estimated difference (Cohen’s d) between the patients and the control groups was 0.15, SE = 0.21, z = 0.72, p = 0.47 (non-significant).
+
+
+## Why does she choose the estimates from m2 and not m4?
+## Why does she only get one row of model estimates? I get two. Did she set her intercept differently?
+## Can you still copy the above text when the estimated difference was nt significant?
+## How do I know how many studies were included? was it 6 or 8?
+```
+
+
+
+
+
