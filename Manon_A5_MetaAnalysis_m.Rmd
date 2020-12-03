@@ -52,6 +52,6 @@ head(data)
 ```
 
 ```{r Procedure from slides}
-
+# What does "calculate effect size and standard error of the effect size per each study" mean?
 ```
 
