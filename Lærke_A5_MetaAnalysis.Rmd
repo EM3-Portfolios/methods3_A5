@@ -62,7 +62,7 @@ df <- df_full %>%
             Pitch_var_hc_mean = PITCH_F0SD_HC_M, 
             Pitch_var_hc_sd = PITCH_F0SD_HC_SD, 
             Pitch_var_sz_mean = PITCH_F0SD_SZ_M, 
-            Pitch_var_sz_sd = PITCH_F0SD_SZ_SD,)
+            Pitch_var_sz_sd = PITCH_F0SD_SZ_SD)
 
 
 # Counting the number of studies with quantitative measures of pitch mean and sd in the meta analysis. NB: This code does not tell us if the observations are in the same rows, but we can just eyeball that.
@@ -110,6 +110,50 @@ forest(m4)
 ## Why does she choose the estimates from m2 and not m4? We don't need fixed effects here
 ## Can you still copy the above text when the estimated difference was n0t significant? Yes
 ## How do I know how many studies were included? was it 6 or 8? Only 6
+```
+
+
+```{r Adding our PF3 to the data set}
+df_withus <- readxl::read_xlsx("MetaAnalysis_withourassignment3.xlsx")
+
+df_withus <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Cohen's d
+               n1i = SAMPLE_SIZE_HC, n2i = SAMPLE_SIZE_SZ,
+               m1i = PITCH_F0_HC_M, m2i = PITCH_F0_SZ_M,
+               sd1i = PITCH_F0_HC_SD, sd2i = PITCH_F0_SZ_SD, data = df_withus)
+
+m2_withus <-rma (yi, vi, data = df_withus, slab = StudyID)
+forest(m2)
+forest(m2_withus)
+```
+
+```{r Now look at the output of rma() and check tau and I2}
+summary(m2)
+summary(m2_withus)
+
+# I^2: 
+# - 75% = high variance
+# - 25 – 50 % moderate variance
+# - < 25 % low variance
+
+# Tau^2:
+# - The lower the value, the lower the heterogeneity (0 when no heterogeneity)
+
+
+# When we included our study in the analysis, the overall variance fell from tau^2 = 0.07 (SE = 0.09) to tau^2 = 0.05 (SE = 0.06). This means that the meta-study became more homogeneous, when we added our data from portfolio 3 to the given meta-analysis data. The proportion of variance due to heterogeneity was moderate to high - both with and without the portfolio 3 data. When we added the portfolio 3 data, it rose from I^2 = 50.3% to I^2 = 55.5%. ...
+# ... XXX What does this mean? XXX
+
+```
+
+```{r Funnel plot/publication bias}
+# Funnel plot: Plotting effect size against standard error. That is, we check whether the larger the effect size the more unreliable the estimate (otherwise said, whether only bad studies have good results)
+
+funnel(m2)
+funnel(m2_withus)
+
+```
+
+```{r Influential studies}
+
 ```
 
 
