@@ -37,7 +37,7 @@ Prisma chart: https://www.dropbox.com/s/vbjf6ff73dv9tru/PRISMA%202009%20flow%20d
 - Now look at the output of rma() and check tau and I2
 
 ```{r Loading + cleaning data}
-pacman::p_load(readxl, metafor, lme4, lmerTest)
+pacman::p_load(tidyverse, readxl, metafor, lme4, lmerTest)
 
 df_full <- read_excel("MetaAnalysis_Data.xlsx")
 
@@ -110,6 +110,11 @@ forest(m4)
 ## Why does she choose the estimates from m2 and not m4? We don't need fixed effects here
 ## Can you still copy the above text when the estimated difference was n0t significant? Yes
 ## How do I know how many studies were included? was it 6 or 8? Only 6
+
+
+# Forest plot interpretation: showing effect size and confidence intervals by study. Dashed line is zero. The closer the effect sizes are to zero, the smaller is the difference between them.
+
+# Funnel plots: whether there is a publication bias or not. plotting correlation coefficient against standard error, the higher the SE the less methodologically sound the study is.
 ```
 
 
