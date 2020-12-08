@@ -58,7 +58,7 @@ head(data)
 
 # See lecture 11-12 code for this:
 library(metafor)
-data <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Cohen's d
+data <- escalc(measure = "SMD", #SMD stands for standardized mean difference AKA Cohen's d
                n1i = SAMPLE_SIZE_HC, n2i = SAMPLE_SIZE_SZ,
                m1i = PITCH_F0_HC_M, m2i = PITCH_F0_SZ_M,
                sd1i = PITCH_F0_HC_SD, sd2i = PITCH_F0_SZ_SD, data = data)
@@ -74,14 +74,14 @@ data <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Coh
 m <- lme4::lmer(yi ~ 1 + (1 | StudyID), weights = 1/vi, data=data, control=lme4::lmerControl(check.nobs.vs.nlev="ignore", check.nobs.vs.nRE="ignore"))
 
 # using rma
-m1 <-rma (yi, vi, data = data, slab = StudyID)
+m1 <-rma(yi, vi, data = data, slab = StudyID)
 forest(m1)
 ```
 
 ```{r Adding our PF3 to the data set}
 df_withus <- readxl::read_xlsx("MetaAnalysis_withourassignment3.xlsx")
 
-df_withus <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Cohen's d
+df_withus <- escalc(measure = "SMD", #SMD stands for standardized mean difference AKA Cohen's d
                n1i = SAMPLE_SIZE_HC, n2i = SAMPLE_SIZE_SZ,
                m1i = PITCH_F0_HC_M, m2i = PITCH_F0_SZ_M,
                sd1i = PITCH_F0_HC_SD, sd2i = PITCH_F0_SZ_SD, data = df_withus)
@@ -92,13 +92,19 @@ forest(m1)
 ```
 
 ```{r Now look at the output of rma() and check tau and I2}
-summary(m1)
-summary(m2)
+summary(m1) # tau = 0.2668, I^2 = 50.29%
+summary(m2) # tau = 0.2240, I^2 = 55.49%
 ```
 
 ```{r Funnel plot/publication bias}
-funnel(m1)
-funnel(m2)
+funnel(m1) # without us
+funnel(m2) # with us (notice change in x-axis)
+
+# Generally about the interpreation of funnel plots:  https://www.statisticshowto.com/funnel-plot/
+# y-axis:
+  # SE of 0 is at the top, studies with lower SE are at the top, higher powered studies are at the top
+# x-axis:
+  # The line in the middle is the SMD (-0.16 and -0.09), the points are the effect sizes of individual studies
 ```
 
 ```{r Influential studies}
