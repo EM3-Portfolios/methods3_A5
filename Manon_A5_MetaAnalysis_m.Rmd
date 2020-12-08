@@ -64,8 +64,8 @@ data <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Coh
                sd1i = PITCH_F0_HC_SD, sd2i = PITCH_F0_SZ_SD, data = data)
 
 # the two new columns: (yi = observed effect size, vi = variance)
-View(data$yi)
-View(data$vi)
+#View(data$yi)
+#View(data$vi)
 # standard error would be sei (see: help page for escalc)
 ```
 
@@ -92,11 +92,13 @@ forest(m1)
 ```
 
 ```{r Now look at the output of rma() and check tau and I2}
-
+summary(m1)
+summary(m2)
 ```
 
 ```{r Funnel plot/publication bias}
-
+funnel(m1)
+funnel(m2)
 ```
 
 ```{r Influential studies}
