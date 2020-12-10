@@ -58,14 +58,14 @@ head(data)
 
 # See lecture 11-12 code for this:
 library(metafor)
-data <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Cohen's d
+data <- escalc(measure = "SMD", #SMD stands for standardized mean difference AKA Cohen's d
                n1i = SAMPLE_SIZE_HC, n2i = SAMPLE_SIZE_SZ,
                m1i = PITCH_F0_HC_M, m2i = PITCH_F0_SZ_M,
                sd1i = PITCH_F0_HC_SD, sd2i = PITCH_F0_SZ_SD, data = data)
 
 # the two new columns: (yi = observed effect size, vi = variance)
-View(data$yi)
-View(data$vi)
+#View(data$yi)
+#View(data$vi)
 # standard error would be sei (see: help page for escalc)
 ```
 
@@ -74,14 +74,17 @@ View(data$vi)
 m <- lme4::lmer(yi ~ 1 + (1 | StudyID), weights = 1/vi, data=data, control=lme4::lmerControl(check.nobs.vs.nlev="ignore", check.nobs.vs.nRE="ignore"))
 
 # using rma
-m1 <-rma (yi, vi, data = data, slab = StudyID)
+m1 <-rma(yi, vi, data = data, slab = StudyID)
 forest(m1)
+
+# the numbers on the left of the forest plot is yi
+
 ```
 
 ```{r Adding our PF3 to the data set}
 df_withus <- readxl::read_xlsx("MetaAnalysis_withourassignment3.xlsx")
 
-df_withus <- escalc(measure = "SMD", #SMD stands for standard mean difference AKA Cohen's d
+df_withus <- escalc(measure = "SMD", #SMD stands for standardized mean difference AKA Cohen's d
                n1i = SAMPLE_SIZE_HC, n2i = SAMPLE_SIZE_SZ,
                m1i = PITCH_F0_HC_M, m2i = PITCH_F0_SZ_M,
                sd1i = PITCH_F0_HC_SD, sd2i = PITCH_F0_SZ_SD, data = df_withus)
@@ -89,14 +92,26 @@ df_withus <- escalc(measure = "SMD", #SMD stands for standard mean difference AK
 m2 <-rma (yi, vi, data = df_withus, slab = StudyID)
 forest(m2)
 forest(m1)
+
+# the square in the forest plot is the weight of that study (study 51, which is ours, seems to be influential)
+
+# https://en.wikipedia.org/wiki/Forest_plot
 ```
 
 ```{r Now look at the output of rma() and check tau and I2}
-
+summary(m1) # tau = 0.2668, I^2 = 50.29%
+summary(m2) # tau = 0.2240, I^2 = 55.49%
 ```
 
 ```{r Funnel plot/publication bias}
+funnel(m1) # without us
+funnel(m2) # with us (notice change in x-axis)
 
+# Generally about the interpreation of funnel plots:  https://www.statisticshowto.com/funnel-plot/
+# y-axis:
+  # SE of 0 is at the top, studies with lower SE are at the top, higher powered studies are at the top
+# x-axis:
+  # The line in the middle is the SMD (-0.16 and -0.09), the points are the effect sizes of individual studies
 ```
 
 ```{r Influential studies}
